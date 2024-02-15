@@ -1,0 +1,14 @@
+{
+  "name": "@sandbox-services-example/main",
+  "module": "index.ts",
+  "type": "module",
+  "dependencies": {
+    "@sandbox-services-example/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

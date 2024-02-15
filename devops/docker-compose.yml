@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:15
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  main:
+    build:
+      context: ..
+      dockerfile: ./packages/main/Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
+
+  worker:
+    build:
+      context: ..
+      dockerfile: ./packages/worker/Dockerfile
+    depends_on:
+      - db
+      - rabbitmq
+    environment:
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: postgres
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
